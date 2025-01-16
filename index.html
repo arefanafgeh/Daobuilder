@@ -1,0 +1,149 @@
+<html>
+    <head>
+        <script src="https://code.jquery.com/jquery-3.7.1.min.js" integrity="sha256-/JqT3SQfawRcv/BIHPThkBvs0OEvtFFmqPF/lYI/Cxo=" crossorigin="anonymous"></script>
+        <script src="https://cdn.jsdelivr.net/npm/web3@4.16.0/dist/web3.min.js"></script>
+    </head>
+    <body>
+        <div id="loginbox">
+            <button id="walletconnect">Login With Wallet</button>
+        </div>
+        <div id="accountaddrss"></div>
+        <div id="setadmins" style="display: none;">
+            <h3>Admins management</h3>
+            <hr>
+            <div class="holder" style="border: 1px solid black;padding: 10px; ">
+                <input type="text" id="newowner"><button id="trasferownership">Set New Project Admin</button>
+                <br>
+                <input type="text" id="newadmin"><button id="addnewadmin">Set new Admin for vitings</button>
+                <br>
+                <div id="admins">
+                    Loading Admins...
+                </div>
+            </div>
+        </div>
+        <div id="myvotings" style="display: none;">
+            <h3>My Votings</h3>
+            <hr>
+            <div class="holder" style="border: 1px solid black;padding: 10px; ">Loading...</div>
+        </div>
+        <div id="createvoting" style="display: none;">
+            <h3>Craete New Voting</h3>
+            <hr>
+                <input id="votingId" type="hidden"><br>
+                <input id="votingTitle" placeholder="Title" type="text"><br>
+                <input id="votingDescription" placeholder="Description" type="text"><br>
+                <input id="votingStart" placeholder="start" type="date"><br>
+                <input id="votingEnd" placeholder="end" type="date"><br>
+                <button id="submitnewvoting">Register New Voting</button>
+                <hr>
+            <!-- <div class="holder" style="border: 1px solid black;padding: 10px; ">Loading...</div> -->
+        </div>
+        <!-- <div id="activevotings" style="display: none;">
+            <h3>Active Votings</h3>
+            <hr>
+            <div class="holder" style="border: 1px solid black;padding: 10px; ">Loading...</div>
+        </div> -->
+        <hr>
+        <div id="setVoters" style="display: none;">
+            <h3>Voters management</h3>
+            <hr>
+            <div class="holder" style="border: 1px solid black;padding: 10px; ">
+               
+                <input type="text" id="newvoter"><button id="addnewvoter">Add a new voter</button>
+                <br>
+                <div id="voters">
+                    Loading Voters...
+                </div>
+            </div>
+        </div>
+
+    </body>
+    <script src="/contract.js"></script>
+    <script>
+            App.afterRender = async function(){
+                await App.contract.methods.isOwner().call({from:App.account}).then(async function(result){
+                                 // console.log(result);
+                                 App.isAdmin = false;
+                                 if(result){
+                                     $(document).find("#setadmins").show();
+                                     await App.getAdminsList();
+                                     App.isAdmin = true;
+                                     $(document).find("#myvotings").show();
+                                     await App.getAllVotings();
+                                     $(document).find("#setVoters").show();
+                                     await App.getAllVoters();
+                                 }
+                             });
+                             await App.contract.methods.isUserAdmin(App.account).call({from:App.account}).then(async function(result){
+                                 // console.error(result);
+                                 if(result){
+                                     $(document).find("#createvoting").show();
+                                     $(document).find("#myvotings").show();
+                                     await App.getMyVotings();
+                                 }
+                             });
+
+                           
+            };
+        window.addEventListener('load', async function() {
+
+                    const accounts = await ethereum.request({
+                        method: 'eth_requestAccounts',
+                    });
+                    await App.init();
+                    $('#walletconnect').on('click',async function(){
+                        await App.Login();
+                    });
+                   
+                });
+
+                $(document).on('click' ,'#trasferownership',async function(){
+                    await App.trasferOwnerShip();
+                });
+                $(document).on('click' ,'#addnewadmin',async function(){
+                    await App.addnewAdmin();
+                });
+
+                $(document).on('click' ,'#removeadmin',async function(){
+                    await App.RemoveAdmin($(this).attr("adminid"));
+                });
+                $(document).on('click' ,'#submitnewvoting',async function(){
+                    await App.NewVoting();
+                });
+                $(document).on('click' ,'.changestartdate',async function(){
+                    await App.changeStartDate($(this).attr('votingid'));
+                });
+                $(document).on('click' ,'.changeenddate',async function(){
+                    await App.changeEndDate($(this).attr('votingid'));
+                });
+                $(document).on('click' ,'.changetitle',async function(){
+                    await App.changeTitle($(this).attr('votingid'));
+                });
+                $(document).on('click' ,'.changedescription',async function(){
+                    await App.changeDescription($(this).attr('votingid'));
+                });
+                $(document).on('click' ,'.StopVoting',async function(){
+                    await App.stopvoting($(this).attr('votingid'));
+                });
+                $(document).on('click' ,'.StartVoting',async function(){
+                    await App.startvoting($(this).attr('votingid'));
+                });
+                $(document).on('click' ,'#addnewvoter',async function(){
+                    await App.addNewVoter($('#newvoter').val());
+                });
+                $(document).on('click' ,'.enableVoter',async function(){
+                    await App.enableVoter($(this).attr('voter'));
+                });
+
+                $(document).on('click' ,'.disableVoter',async function(){
+                    await App.disableVoter($(this).attr('voter'));
+                });
+                $(document).on('click' ,'.increaseVoterPower',async function(){
+                    await App.increaseVoterPower($(this).attr('voter'));
+                });
+                $(document).on('click' ,'.decreaseVoterPower',async function(){
+                    await App.decreaseVoterPower($(this).attr('voter'));
+                });
+                
+    </script>
+</html>

@@ -1,0 +1,64 @@
+<html>
+    <head>
+        <script src="https://code.jquery.com/jquery-3.7.1.min.js" integrity="sha256-/JqT3SQfawRcv/BIHPThkBvs0OEvtFFmqPF/lYI/Cxo=" crossorigin="anonymous"></script>
+        <script src="https://cdn.jsdelivr.net/npm/web3@4.16.0/dist/web3.min.js"></script>
+    </head>
+    <body>
+        <div id="loginbox">
+            <button id="walletconnect">Login With Wallet</button>
+        </div>
+        <div id="accountaddrss"></div>
+        <div id="myvotings" style="display: none;">
+            <h3>Manage Voting data</h3>
+            <hr>
+            <div class="holder" style="border: 1px solid black;padding: 10px; ">Loading...</div>
+        </div>
+        <div id="options" style="">
+            <h3>Manage Voting Options</h3>
+            <hr>
+            <div class="holder" style="border: 1px solid black;padding: 10px; ">Loading...</div>
+        </div>
+        <hr>
+        <div>
+            <input type="text" id="votingOptionInput"><button id="addOption">Add Option</button>
+        </div>
+    </body>
+
+    <script src="/contract.js"></script>
+    <script>
+
+        const queryString = window.location.search;
+        const urlParams = new URLSearchParams(queryString);
+        var votingId = urlParams.get('id');
+        App.afterRender = async function(){
+                    await App.contract.methods.isUserAdmin(App.account ).call({from:App.account}).then(async function(result){
+                                        // console.error(result);
+                                        if(result){
+                                            $(document).find("#myvotings").show();
+                                            await App.getMyVotingData(votingId);
+                                            await App.getVotingOptions();
+                                        }
+                                    });
+        };
+
+                window.addEventListener('load', async function() {
+
+                    const accounts = await ethereum.request({
+                        method: 'eth_requestAccounts',
+                    });
+                    await App.init();
+                    $('#walletconnect').on('click',async function(){
+                        await App.Login();
+                    });
+                   
+                });
+
+                $(document).on('click' ,'#addOption',async function(){
+                    await App.addOption();
+                });
+                $(document).on('click' ,'.removeoption',async function(){
+                    await App.removeOption($(this).attr('optionId'));
+                });
+                
+    </script>
+</html>
