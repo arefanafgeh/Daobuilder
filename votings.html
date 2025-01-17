@@ -1,0 +1,41 @@
+<html>
+    <head>
+        <script src="https://code.jquery.com/jquery-3.7.1.min.js" integrity="sha256-/JqT3SQfawRcv/BIHPThkBvs0OEvtFFmqPF/lYI/Cxo=" crossorigin="anonymous"></script>
+        <script src="https://cdn.jsdelivr.net/npm/web3@4.16.0/dist/web3.min.js"></script>
+    </head>
+    <body>
+        <div id="loginbox">
+            <button id="walletconnect">Login With Wallet</button>
+        </div>
+        <div id="accountaddrss"></div>
+        
+        <div id="votings" >
+            <h3>List Of active Votings</h3>
+            <hr>
+            <div class="holder" style="border: 1px solid black;padding: 10px; ">Loading...</div>
+        </div>
+        
+    </body>
+
+    <script src="/contract.js?v=1"></script>
+    <script>
+
+        App.afterRender = async function(){
+                await App.getActiveVotings();
+        };
+
+                window.addEventListener('load', async function() {
+
+                    const accounts = await ethereum.request({
+                        method: 'eth_requestAccounts',
+                    });
+                    await App.init();
+                    $('#walletconnect').on('click',async function(){
+                        await App.Login();
+                    });
+                   
+                });
+
+                
+    </script>
+</html>

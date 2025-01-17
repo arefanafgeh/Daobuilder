@@ -9,7 +9,7 @@ contract Daobuilder is DaobuilderDataStorage{
         uint[] memory activeVotings = new uint[](lastVotingId);
         uint counter = 0;
         for(uint i = 1; i<=lastVotingId;i++){
-            if(votings[i].activated && votings[i].ended!=false && votings[i].start<=block.timestamp && votings[i].end>block.timestamp){
+            if(votings[i].activated && votings[i].ended==false && votings[i].start/1000 <= block.timestamp && votings[i].end/1000 > block.timestamp){
                 activeVotings[counter] = i;
                 counter+=1;
             }

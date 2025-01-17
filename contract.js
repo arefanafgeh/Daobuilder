@@ -7,6 +7,7 @@ var accountcreated = false;
          account:'0x0',
          subscriber:null,
          isAdmin:false,
+         isVoter:false,
          websocketprovider:null,
          init:async function(){
              return await App.initweb3();
@@ -32,7 +33,7 @@ var accountcreated = false;
                  .then((res=>res.json()))
                  .then(async function(data) {
                      var myContractABI = data;
-                     App.contract = new web3js.eth.Contract(myContractABI.abi, "0x759e95d94a40Eab114003e806C5A9Eb7D32aE962");
+                     App.contract = new web3js.eth.Contract(myContractABI.abi, "0xe7586637a83C976Abf736aE4CB37A200C1b509A8");
                      // App.websocketprovider = new Web3(new Web3.providers.WebsocketProvider('ws://localhost:7545'));
                      // let options = { address: '0x288F9EFfaa1f25032ADC508D9dfe52800eB65a3F'};
                      // subscribe = await App.websocketprovider.eth.subscribe('logs', options, (err, res) => {});
@@ -68,6 +69,8 @@ var accountcreated = false;
                             //  $(document).find("#activevotings .holder").html("Loading");
                                  App.account = accounts[0];
                                  App.render();   
+                            
+                            await App.checkIfVoter();
                          }                     
                  });
              },100);
@@ -75,16 +78,6 @@ var accountcreated = false;
          },
          render: async function() {
              
-                             // App.contract.events.MyWholeFuckingData({ filter: { owner: App.account } })
-                             // .on("data", function(event) {
-                             //     accountcreated=true;
-                             //     $('#withdrawamount').show();
-                             //     $('#howmuchdraw').attr("max",Number(event.returnValues.balance)* 10**-18);
-                             //     $('#bankbalnace').text("balance: "+Number(event.returnValues.balance)* 10**-18);
-                             //     $('#card').text("cardnumber: "+event.returnValues.CardNumber);
-                             //     $('#cvvtwo').text("cvv2: "+event.returnValues.CVV2);
-                             //     $('#expdata').text("exp dat: "+event.returnValues.year+"-"+event.returnValues.year);
-                             // });
                              App.contract.events.OwnershipTransferred()
                              .on("data",function(event){
                                      alert("Contract Admin Changed");
@@ -246,6 +239,32 @@ var accountcreated = false;
                  
              });
          },
+         getMyVotingDataForViewers:async function(id){
+            await App.contract.methods.votings(id).call().then(async function(data){
+                var elementExists = document.getElementById("voting   "+id);
+                if(elementExists){
+                    $(document).find("#voting"+id).html(" Voting Number:"+id+"<br>"
+                             +"start:"+App.timestamptodate(data.start)+"<br>"  
+                             +"end:"+App.timestamptodate(data.end)+"<br>"
+                             +"Title:"+data.title+"<br>"
+                             +"Desc:"+data.descriptions+"<br>"
+                             +"<a href='/vote.html?id="+id+"'>Vote In this Dao</a>");
+                }else{
+                    $(document).find("#votings .holder").append(
+                        "<div style='border:1px solid red ;margin:5px;padding:5px' id='voting"+id+"'>"
+                        +" Voting Number:"+id+"<br>"
+                        +"start:"+App.timestamptodate(data.start)+"<br>"  
+                        +"end:"+App.timestamptodate(data.end)+"<br>"
+                        +"Title:"+data.title+"<br>"
+                        +"Desc:"+data.descriptions+"<br>"
+                        +"<a href='/vote.html?id="+id+"'>Vote In this Dao</a>"
+                       +
+                        "</div>"
+                    );
+                }
+                
+            });
+        },
          getMyVotings:async function(){
 
              await App.contract.methods.getMyVotings().call({from:App.account}).then(async function(result){
@@ -367,7 +386,16 @@ var accountcreated = false;
         decreaseVoterPower:async function(addrss){
             await App.contract.methods.decreaseVoterPower(addrss).send({from:App.account});
         },
-        
+        getActiveVotings: async function(){
+            await App.contract.methods.getActiveVotings().call().then(async function(listofactivevotings){
+                
+                    listofactivevotings.forEach(async function(votingId){
+                        if(parseInt(votingId)>0){
+                            await App.getMyVotingDataForViewers(votingId);
+                        }
+                    });
+            });
+        }
      };
 
     
