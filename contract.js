@@ -33,7 +33,7 @@ var accountcreated = false;
                  .then((res=>res.json()))
                  .then(async function(data) {
                      var myContractABI = data;
-                     App.contract = new web3js.eth.Contract(myContractABI.abi, "0x622fF9847aE4e734b8a02983d80C545C403f70f0");
+                     App.contract = new web3js.eth.Contract(myContractABI.abi, "0x99d876895A758AA3f92EcC899490Be888840e7F0");
                      // App.websocketprovider = new Web3(new Web3.providers.WebsocketProvider('ws://localhost:7545'));
                      // let options = { address: '0x288F9EFfaa1f25032ADC508D9dfe52800eB65a3F'};
                      // subscribe = await App.websocketprovider.eth.subscribe('logs', options, (err, res) => {});
@@ -439,8 +439,11 @@ var accountcreated = false;
                     });
             });
         },
-        vote:async function(daoid , option){
-            await App.contract.methods.vote(daoid , option,App.account).send({from:App.account});
+        vote:async function(daoid , option , onbehalfof){
+            if(!onbehalfof){
+                onbehalfof =App.account;
+            }
+            await App.contract.methods.vote(daoid , option,onbehalfof).send({from:App.account});
         },
         delegatevotingpowerOnthisVoteTo:async function(daoid , addrss){
             await App.contract.methods.delegateMyVote(daoid , addrss).send({from:App.account});
@@ -448,6 +451,38 @@ var accountcreated = false;
         undelegatevotingpowerOnthisVoteTo:async function(daoid , addrss){
             await App.contract.methods.revokeDelegation(daoid , addrss).send({from:App.account});
         },
+        getMyDelegationOnVoting:async function(daoid){
+            await App.contract.methods.getMyDelegationOnVoting(daoid).call({from:App.account}).then(function(addrss){
+                $('#delegationbox').html("Delegated My voting power on this voting to :"+addrss+"<button class='undelegate' votingid='"+daoid+"' delegatee='"+addrss+"'></button>");
+            });
+        },
+        getVotingResult:async function(daoid){
+            await App.contract.methods.getVotingsVotes(daoid).call().then(async function(votings){
+                let voteres =[];
+                let keys = [];
+               let count = 0;
+                await votings.forEach(async function(voting){
+                    await App.contract.methods.votes(voting).call().then(async function(vote){
+                        
+                        if(voteres[vote.option] !== undefined){
+                            
+                            voteres[vote.option]=voteres[vote.option] + parseInt(vote.power);
+                        }else{
+                            voteres[vote.option]=parseInt(vote.power);
+                            keys.push(vote.option);
+                        }
+                        count++;
+                        if(count==votings.length){
+                            keys.forEach(function(index){
+                                $('#votingresult').append(index+":"+voteres[index]+"<br>");
+                            });
+                        }
+                    });
+                });
+                
+                
+            })
+        }
      };
 
     

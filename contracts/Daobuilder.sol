@@ -21,6 +21,7 @@ contract Daobuilder is DaobuilderDataStorage{
         uint[] memory MyVotingList = myVotings[msg.sender];
         return MyVotingList;
     }
+    
     function getVotingOptions(uint _votingId) public view returns (uint[] memory){
         uint[] memory MyVotingList = votingOptions[_votingId];
         return MyVotingList;
@@ -45,9 +46,11 @@ contract Daobuilder is DaobuilderDataStorage{
         emit VotingRightUnDelegated(_votingId , msg.sender , _to);
     }
 
-
-
-
+    function getMyDelegationOnVoting(uint _votingId) public view
+                    isVotingActive(_votingId) returns (address addrss){
+            Delegations storage thisVotingDelegations = votingsDelegations[_votingId];
+            return thisVotingDelegations.delegaterToDelegatee[msg.sender];
+    }
 
     function vote(uint _votingId , uint _selectedOption , address _onbehalfOf) 
         external isVotingActive(_votingId)
@@ -65,11 +68,13 @@ contract Daobuilder is DaobuilderDataStorage{
     } 
 
 
-
-
-    function getVotingResult(uint _votingId) public view{
-
+    function getVotingsVotes(uint _votingId) public view returns (uint[] memory){
+        uint[] memory Votingvotes = votingsVotes[_votingId];
+        return Votingvotes;
     }
-
+    function getVotersVotes() public view returns (uint[] memory){
+        uint[] memory MyVotes = votersVotes[msg.sender];
+        return MyVotes;
+    }
 
 }

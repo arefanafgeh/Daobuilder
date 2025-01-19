@@ -20,7 +20,8 @@
             <div class="holder" style="border: 1px solid black;padding: 10px; ">Loading...</div>
         </div>
         <hr>
-        <div>
+        <div>Vote On behalf of:
+            <input type="text" id="voteonbehalfof" placeholder="">
             <button id="dovote">Vote</button>
         </div>
 
@@ -31,23 +32,23 @@
                
             </div>
         </div>
-        
+        <div id="votingresult">
+
+        </div>
     </body>
 
-    <script src="/contract.js?v=7"></script>
+    <script src="/contract.js?v=8"></script>
     <script>
 
 const queryString = window.location.search;
         const urlParams = new URLSearchParams(queryString);
         var votingId = urlParams.get('id');
         App.afterRender = async function(){
-                    // await App.contract.methods.isUserAdmin(App.account ).call({from:App.account}).then(async function(result){
-                                        // console.error(result);
-                                        // if(result){
+            $(document).find("#voteonbehalfof").val(App.account);
                                             $(document).find("#myvotings").show();
                                             await App.showDAO(votingId);
-                                        // }
-                                    // });
+                                            await App.getMyDelegationOnVoting(votingId);
+                                            await App.getVotingResult(votingId);
         };
 
 
@@ -62,7 +63,7 @@ const queryString = window.location.search;
                     });
 
                     $('#dovote').on('click',async function(){
-                        await App.vote(votingId,$('[name="daooptions"]').val());
+                        await App.vote(votingId,$('input[name="daooptions"]:checked').val() , $(document).find("#voteonbehalfof").val());
                     });
                     $('#delegate').on('click',async function(){
                         await App.delegatevotingpowerOnthisVoteTo(votingId,$('#delegateto').val());
