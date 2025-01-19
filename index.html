@@ -58,7 +58,7 @@
         </div>
 
     </body>
-    <script src="/contract.js"></script>
+    <script src="/contract.js?v=2"></script>
     <script>
             App.afterRender = async function(){
                 await App.contract.methods.isOwner().call({from:App.account}).then(async function(result){
@@ -87,7 +87,7 @@
             };
         window.addEventListener('load', async function() {
 
-                    const accounts = await ethereum.request({
+                const accounts = await ethereum.request({
                         method: 'eth_requestAccounts',
                     });
                     await App.init();

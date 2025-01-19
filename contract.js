@@ -29,11 +29,11 @@ var accountcreated = false;
              return await App.initContract();
          },
          initContract:async function(){
-             fetch("./build/contracts/Daobuilder.json?v=6")
+             fetch("./build/contracts/Daobuilder.json?v=7")
                  .then((res=>res.json()))
                  .then(async function(data) {
                      var myContractABI = data;
-                     App.contract = new web3js.eth.Contract(myContractABI.abi, "0xe7586637a83C976Abf736aE4CB37A200C1b509A8");
+                     App.contract = new web3js.eth.Contract(myContractABI.abi, "0xF77c19004CA2F7516B2a698CC13b7913dcd6ffFf");
                      // App.websocketprovider = new Web3(new Web3.providers.WebsocketProvider('ws://localhost:7545'));
                      // let options = { address: '0x288F9EFfaa1f25032ADC508D9dfe52800eB65a3F'};
                      // subscribe = await App.websocketprovider.eth.subscribe('logs', options, (err, res) => {});
@@ -119,6 +119,10 @@ var accountcreated = false;
                              .on('data',async function(event){
                                 await App.getVoterByAddress(event.returnValues.voter);
                              });
+                             App.contract.events.VoteRegistered()
+                             .on('data',async function(){
+                                alert('Vote registered. thank you');
+                             })
                              $('#loginbox').text("address: "+App.account);
                             //  $(document).find("#activevotings").show();
                              await App.afterRender();
@@ -395,6 +399,39 @@ var accountcreated = false;
                         }
                     });
             });
+        },
+        showDAO:async function(id){
+            await App.contract.methods.votings(id).call().then(async function(data){
+
+                    $(document).find("#myvotings .holder").append(
+                        "<div style='border:1px solid red ;margin:5px;padding:5px' id='myvoting"+id+"'>"
+                            +"Voting Number:"+id+"<br>"
+                             +"Title:"+data.title+"<br>"
+                             +"Desc:"+data.descriptions+"<br>"
+                       +
+                        "</div>"
+                    );
+                
+                    await App.contract.methods.getVotingOptions(id).call({from:App.account}).then(async function(result){
+                        $(document).find("#options .holder").html('');
+                        result.forEach(async function(voting){
+                            await App.contract.methods.options(voting).call().then(async function(data){
+               
+                                $(document).find("#options .holder").append(
+                                    " <input type='radio' name='daooptions' id='selectedvoteoption"+voting+"' value='"+voting+"'>"
+                                         +"<label for='selectedvoteoption"+voting+"'>"
+                                        +""+data.option+""+
+                                    "</label><br>"
+                                );
+                            
+                            
+                        });
+                        });
+                    });
+            });
+        },
+        vote:async function(daoid , option){
+            await App.contract.methods.vote(id , option,App.account).send({from:App.account});
         }
      };
 

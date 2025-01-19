@@ -17,6 +17,16 @@ contract Daobuilder is DaobuilderDataStorage{
         return activeVotings;
     }
 
+    function getMyVotings() public view isAdmin(msg.sender) returns (uint[] memory){
+        uint[] memory MyVotingList = myVotings[msg.sender];
+        return MyVotingList;
+    }
+    function getVotingOptions(uint _votingId) public view returns (uint[] memory){
+        uint[] memory MyVotingList = votingOptions[_votingId];
+        return MyVotingList;
+    }
+
+
     
     function delegateMyVote(uint _votingId ,address _to) 
         external  isVotingActive(_votingId) 
@@ -37,6 +47,12 @@ contract Daobuilder is DaobuilderDataStorage{
         emit VotingRightUnDelegated(_votingId , msg.sender , _to);
     }
 
+
+    function getVotingResult(uint _votingId) public view{
+
+    }
+
+
     function vote(uint _votingId , uint _selectedOption , address _onbehalfOf) 
         external isVotingActive(_votingId)
                  NoVoteRegesteredYet(_votingId,_onbehalfOf)
@@ -49,21 +65,8 @@ contract Daobuilder is DaobuilderDataStorage{
         userVotes.push(lastVoteId);
         uint[] storage votingVotes = votingsVotes[_votingId];
         votingVotes.push(lastVoteId);
+        emit VoteRegistered(_votingId , _selectedOption , _onbehalfOf);
     } 
-
-    function getMyVotings() public view isAdmin(msg.sender) returns (uint[] memory){
-        uint[] memory MyVotingList = myVotings[msg.sender];
-        return MyVotingList;
-    }
-    function getVotingOptions(uint _votingId) public view returns (uint[] memory){
-        uint[] memory MyVotingList = votingOptions[_votingId];
-        return MyVotingList;
-    }
-
-    function getVotingResult(uint _votingId) public view{
-
-    }
-
 
 
 

@@ -89,6 +89,7 @@ contract DaobuilderDataStorage is Ownable{
     event VotingOptionChanged(uint indexed votingIndex , string  option, string  msg);
     event VotingRightDelegated(uint indexed votingIndex  , address indexed delegater , address indexed delegatee);
     event VotingRightUnDelegated(uint indexed votingIndex  , address indexed delegater , address indexed delegatee);
+    event VoteRegistered(uint indexed votingIndex , uint indexed option , address indexed voter);
 
     /**
     *   Events section
