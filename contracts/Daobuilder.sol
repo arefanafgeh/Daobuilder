@@ -25,8 +25,6 @@ contract Daobuilder is DaobuilderDataStorage{
         uint[] memory MyVotingList = votingOptions[_votingId];
         return MyVotingList;
     }
-
-
     
     function delegateMyVote(uint _votingId ,address _to) 
         external  isVotingActive(_votingId) 
@@ -48,9 +46,7 @@ contract Daobuilder is DaobuilderDataStorage{
     }
 
 
-    function getVotingResult(uint _votingId) public view{
 
-    }
 
 
     function vote(uint _votingId , uint _selectedOption , address _onbehalfOf) 
@@ -71,29 +67,9 @@ contract Daobuilder is DaobuilderDataStorage{
 
 
 
-    /**
-    *   بعدش مباحث دايو جداگانه مطالعه میشه
-    */
+    function getVotingResult(uint _votingId) public view{
+
+    }
 
 
-    /**
-        Next Challange Voters must own a an specific ERC20 
-    */
-
-
-
-    /**
-    *
-    *   آزمون بعدی....MultisSig 
-        بعدش مباحث مولتی سیگ جداگانه مطالعه میشه
-    *
-    */
-
-
-    /**
-    *
-    *   آزمون بعدی....ERC20 ,ERC721  , ERC1155
-        بعدش مباحث ERC20 و ERC721 و ERC1155
-    *   جداگانه مطالعه میشه
-    */
 }

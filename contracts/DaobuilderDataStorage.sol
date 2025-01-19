@@ -142,8 +142,10 @@ contract DaobuilderDataStorage is Ownable{
         //No vote registered for me
         uint[] storage Myvotes = votersVotes[_voteraddress];
         for(uint i=0;i<Myvotes.length;i++){
-            require(votes[Myvotes[i]].voingInsteadOf==_voteraddress , "You have already a registered vote for this voting");
-            require(votes[Myvotes[i]].votingId!=_votingId , "You have already a registered vote for this voting");
+            if(votes[Myvotes[i]].votingId==_votingId){
+                require(votes[Myvotes[i]].voingInsteadOf!=_voteraddress , "You have already a registered vote for this voting");
+                // require(votes[Myvotes[i]].votingId!=_votingId , "You have already a registered vote for this voting");
+            }
         }
         _;
     }

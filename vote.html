@@ -23,23 +23,31 @@
         <div>
             <button id="dovote">Vote</button>
         </div>
+
+        <br>
+        <div style="border:1px solid #ccc;padding: 10px;">
+            <input id="delegateto"> <button id="delegate">Delegate My Vote to</button>
+            <div id="delegationbox">
+               
+            </div>
+        </div>
         
     </body>
 
-    <script src="/contract.js?v=2"></script>
+    <script src="/contract.js?v=7"></script>
     <script>
 
 const queryString = window.location.search;
         const urlParams = new URLSearchParams(queryString);
         var votingId = urlParams.get('id');
         App.afterRender = async function(){
-                    await App.contract.methods.isUserAdmin(App.account ).call({from:App.account}).then(async function(result){
+                    // await App.contract.methods.isUserAdmin(App.account ).call({from:App.account}).then(async function(result){
                                         // console.error(result);
-                                        if(result){
+                                        // if(result){
                                             $(document).find("#myvotings").show();
                                             await App.showDAO(votingId);
-                                        }
-                                    });
+                                        // }
+                                    // });
         };
 
 
@@ -56,6 +64,12 @@ const queryString = window.location.search;
                     $('#dovote').on('click',async function(){
                         await App.vote(votingId,$('[name="daooptions"]').val());
                     });
+                    $('#delegate').on('click',async function(){
+                        await App.delegatevotingpowerOnthisVoteTo(votingId,$('#delegateto').val());
+                    });
+                    $(document).on('click' , '.undelegate',async function(){
+                        await App.undelegatevotingpowerOnthisVoteTo(votingId,$(this).attr('delegatee'));
+                    })
                    
                 });
 

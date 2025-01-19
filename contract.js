@@ -33,7 +33,7 @@ var accountcreated = false;
                  .then((res=>res.json()))
                  .then(async function(data) {
                      var myContractABI = data;
-                     App.contract = new web3js.eth.Contract(myContractABI.abi, "0xF77c19004CA2F7516B2a698CC13b7913dcd6ffFf");
+                     App.contract = new web3js.eth.Contract(myContractABI.abi, "0x622fF9847aE4e734b8a02983d80C545C403f70f0");
                      // App.websocketprovider = new Web3(new Web3.providers.WebsocketProvider('ws://localhost:7545'));
                      // let options = { address: '0x288F9EFfaa1f25032ADC508D9dfe52800eB65a3F'};
                      // subscribe = await App.websocketprovider.eth.subscribe('logs', options, (err, res) => {});
@@ -120,9 +120,17 @@ var accountcreated = false;
                                 await App.getVoterByAddress(event.returnValues.voter);
                              });
                              App.contract.events.VoteRegistered()
-                             .on('data',async function(){
+                             .on('data',async function(event){
                                 alert('Vote registered. thank you');
-                             })
+                             });
+                             App.contract.events.VotingRightDelegated()
+                             .on("data" , async function(event){
+                                $('#delegationbox').html("Delegated My voting power on this voting to :"+event.returnValues.delegatee+"<button class='undelegate' votingid='"+event.returnValues.votingIndex+"' delegatee='"+event.returnValues.delegatee+"'></button>");
+                             });
+                             App.contract.events.VotingRightUnDelegated()
+                             .on("data" , async function(event){
+                                $('#delegationbox').html("");
+                             });
                              $('#loginbox').text("address: "+App.account);
                             //  $(document).find("#activevotings").show();
                              await App.afterRender();
@@ -401,8 +409,9 @@ var accountcreated = false;
             });
         },
         showDAO:async function(id){
+            
             await App.contract.methods.votings(id).call().then(async function(data){
-
+                   
                     $(document).find("#myvotings .holder").append(
                         "<div style='border:1px solid red ;margin:5px;padding:5px' id='myvoting"+id+"'>"
                             +"Voting Number:"+id+"<br>"
@@ -431,8 +440,14 @@ var accountcreated = false;
             });
         },
         vote:async function(daoid , option){
-            await App.contract.methods.vote(id , option,App.account).send({from:App.account});
-        }
+            await App.contract.methods.vote(daoid , option,App.account).send({from:App.account});
+        },
+        delegatevotingpowerOnthisVoteTo:async function(daoid , addrss){
+            await App.contract.methods.delegateMyVote(daoid , addrss).send({from:App.account});
+        },
+        undelegatevotingpowerOnthisVoteTo:async function(daoid , addrss){
+            await App.contract.methods.revokeDelegation(daoid , addrss).send({from:App.account});
+        },
      };
 
     
