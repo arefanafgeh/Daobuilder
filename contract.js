@@ -151,7 +151,7 @@ var accountcreated = false;
          getAdminsList: async function(){
              await App.contract.methods.lastVotingAdminId().call().then(async function(result){
                  $(document).find('#admins').html("");
-                                 for(i=1;i<=parseInt(result);i++){
+                                 for(i=1;i<parseInt(result);i++){
                                      await App.getAdminById(i).then(function(data){
                                          // console.log(data);
                                          let adminstatus = "<span style='color:green'>ACTIVE</span>";

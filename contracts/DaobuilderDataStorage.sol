@@ -15,7 +15,7 @@ contract DaobuilderDataStorage is Ownable{
     }
     mapping(uint=>VotingAdmin) public votingAdmins;
     mapping(address=>uint) public votingAdminsShort;
-    uint public lastVotingAdminId = 0;
+    uint public lastVotingAdminId = 1;
  
 
     struct Voter{
@@ -175,13 +175,15 @@ contract DaobuilderDataStorage is Ownable{
     Manage Voting Admins
      */
     function addVotingAdmin(address _newadmin) external OnlyOwner {
+        uint _locallastVotingAdminId = lastVotingAdminId;
         if(!votingAdmins[votingAdminsShort[_newadmin]].added ){
-            lastVotingAdminId+=1;
-            votingAdminsShort[_newadmin] = lastVotingAdminId;
-            votingAdmins[lastVotingAdminId] = VotingAdmin(_newadmin , true,true);
+            votingAdminsShort[_newadmin] = _locallastVotingAdminId;
+            votingAdmins[_locallastVotingAdminId] = VotingAdmin(_newadmin , true,true);
+            _locallastVotingAdminId+=1;
         }else{
             votingAdmins[votingAdminsShort[_newadmin]].enabled = true;
         }
+        lastVotingAdminId = _locallastVotingAdminId;
         emit NewAdminAdded(_newadmin);
     }
     function removeVotingAdmin(address _address) external OnlyOwner isAdmin(_address) {
