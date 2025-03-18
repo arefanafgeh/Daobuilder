@@ -154,7 +154,6 @@ contract DaobuilderDataStorage is Ownable{
     modifier CanVoteBehalfOf(uint _votingId ,address _voter , address _onbehalfOf){
         if(_voter!=_onbehalfOf){
             require(votingsDelegations[_votingId].delegaterToDelegatee[_onbehalfOf]==_voter,"You have no right to vote for someone's else");
-        
         }
         _;
     }

@@ -62,6 +62,7 @@ contract Daobuilder is DaobuilderDataStorage{
                  IsOptionValid(_votingId , _selectedOption){
         uint _lastVoteId = lastVoteId;
         // lastVoteId+=1;
+       
         votes[_lastVoteId] = Vote(_votingId,msg.sender,_onbehalfOf,options[_selectedOption].option,block. timestamp,voters[_onbehalfOf].votingPower);
         uint[] storage userVotes = votersVotes[_onbehalfOf];
         userVotes.push(_lastVoteId);
