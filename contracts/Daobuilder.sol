@@ -21,7 +21,7 @@ contract Daobuilder is DaobuilderDataStorage{
 
     function getMyVotings() public view isAdmin(msg.sender) returns (uint[] memory){
         uint[] memory MyVotingList = myVotings[msg.sender];
-        return MyVotingList;
+        return myVotings[msg.sender];
     }
     
     function getVotingOptions(uint _votingId) public view returns (uint[] memory){
