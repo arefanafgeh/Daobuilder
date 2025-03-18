@@ -23,7 +23,7 @@ contract DaobuilderDataStorage is Ownable{
         uint8 votingPower;
         bool added;
     }
-    uint public lastVoterId = 0;
+    uint public lastVoterId = 1;
     mapping(address=>Voter) public voters;
     mapping(uint=>address) public votersAddresses;
 
@@ -38,7 +38,7 @@ contract DaobuilderDataStorage is Ownable{
         uint createdAt;
     }
     mapping(uint=>Voting) public votings;
-    uint public lastVotingId = 0;
+    uint public lastVotingId = 1;
     mapping(address=>uint[]) public myVotings;
     struct Option{
         string option;
@@ -46,7 +46,7 @@ contract DaobuilderDataStorage is Ownable{
         uint votingId;
     }
     mapping(uint=>Option) public options;
-    uint public lastOptionId;
+    uint public lastOptionId=1;
     mapping(uint=>uint[]) public votingOptions;
 
     struct Vote{
@@ -58,7 +58,7 @@ contract DaobuilderDataStorage is Ownable{
         uint power;
     }
     mapping(uint=>Vote) public votes;
-    uint  public lastVoteId = 0;
+    uint  public lastVoteId = 1;
     mapping(address=>uint[]) public votersVotes;
     mapping(uint=>uint[]) public votingsVotes;
     struct Delegations{
@@ -127,11 +127,12 @@ contract DaobuilderDataStorage is Ownable{
         _;
     }
     modifier isVotingActive(uint _votingId){
-         require(votings[_votingId].activated ,"Voting is Not Active");
-         require(!votings[_votingId].ended ,"Voting is Ended");
-         require(votings[_votingId].end > votings[_votingId].start ,"Voting is Ended");
-         require(votings[_votingId].end/1000 > block.timestamp ,"Voting is Ended");
-         require(block.timestamp > votings[_votingId].start/1000  ,"Wierdly voting start is NOT less than now");
+        Voting storage voting = votings[_votingId];
+         require(voting.activated ,"Voting is Not Active");
+         require(!voting.ended ,"Voting is Ended");
+         require(voting.end >voting.start ,"Voting is Ended");
+         require(voting.end/1000 > block.timestamp ,"Voting is Ended");
+         require(block.timestamp > voting.start/1000  ,"Wierdly voting start is NOT less than now");
          _;
     }
     modifier VotingNotPublishedYet(uint _votingId){
@@ -160,8 +161,9 @@ contract DaobuilderDataStorage is Ownable{
 
 
     modifier IsOptionValid(uint _votingId ,uint _votingOptionId){
-        require(options[_votingOptionId].enabled ,"Selected Option is not in valid defined options ");
-        require(options[_votingOptionId].votingId==_votingId ,"Selected Option is not in valid defined options ");
+        Option storage opt =options[_votingOptionId]; 
+        require(opt.enabled ,"Selected Option is not in valid defined options ");
+        require(opt.votingId==_votingId ,"Selected Option is not in valid defined options ");
         _;
     }
     /**
@@ -198,9 +200,10 @@ contract DaobuilderDataStorage is Ownable{
     Manage Voters
      */
     function addVoter(address _voter) external OnlyOwner VoterDoesNotExists(_voter){
-        lastVoterId+=1;
-        voters[_voter] = Voter(false, 1,true);
+        voters[_voter].votingPower=1;
+        voters[_voter].added=true;
         votersAddresses[lastVoterId] = _voter;
+        lastVoterId+=1;
         emit VoterAdded(_voter);
     }
 
@@ -232,12 +235,23 @@ contract DaobuilderDataStorage is Ownable{
     Manage Votings
      */
     function addVoting(uint _start , uint _end , string memory _title , string memory _description) external isAdmin(msg.sender) returns (uint) {
-        lastVotingId+=1;
-        votings[lastVotingId] = Voting(msg.sender, _start, _end, false , false,_title , _description , block.timestamp) ;
+        uint _lastVotingId = lastVotingId;
+        Voting storage newvoting =votings[_lastVotingId];
+        newvoting.creator = msg.sender;
+        newvoting.start=_start;
+        newvoting.end=_end;
+        // newvoting.ended;
+        // newvoting.activated;
+        newvoting.title=_title;
+        newvoting.descriptions=_description;
+        newvoting.createdAt=block.timestamp;
+        // votings[lastVotingId] = Voting(msg.sender, _start, _end, false , false,_title , _description , block.timestamp) ;
         uint[] storage myvotings =myVotings[msg.sender];
-        myvotings.push(lastVotingId);
-        emit VotingDataChanged(lastVotingId , "Voting Added");
-        return lastVotingId;
+        _lastVotingId+=1;
+        lastVotingId = _lastVotingId;
+        myvotings.push(_lastVotingId);
+        emit VotingDataChanged(_lastVotingId , "Voting Added");
+        return _lastVotingId;
 
     }
     function changeVotingStartDate(uint _votingId , uint _startdate) external isAdmin(msg.sender) isAdminOf(msg.sender , _votingId) VotingNotPublishedYet(_votingId) {
@@ -270,10 +284,11 @@ contract DaobuilderDataStorage is Ownable{
     Manage Voting Options
      */
     function addVotingOption(uint _votingId , string memory option) external isAdmin(msg.sender) isAdminOf(msg.sender , _votingId) VotingNotPublishedYet(_votingId){
-        lastOptionId+=1;
+        uint _lastOptionId = lastOptionId;
         uint[] storage _votingOptions = votingOptions[_votingId];
-        options[lastOptionId] = Option(option,true , _votingId);
-        _votingOptions.push(lastOptionId);
+        options[_lastOptionId] = Option(option,true , _votingId);
+        _votingOptions.push(_lastOptionId);
+        lastOptionId+=1;
         emit VotingOptionChanged(_votingId , option , "Voting Option Added");
     }
     function removeVotingOption(uint _votingId , uint option) external isAdmin(msg.sender) isAdminOf(msg.sender , _votingId) VotingNotPublishedYet(_votingId){

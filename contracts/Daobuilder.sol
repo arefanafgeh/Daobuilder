@@ -6,10 +6,12 @@ contract Daobuilder is DaobuilderDataStorage{
 
 
     function getActiveVotings() public view returns (uint[] memory){
-        uint[] memory activeVotings = new uint[](lastVotingId);
+        uint _lastVotingId = lastVotingId;
+        uint[] memory activeVotings = new uint[](_lastVotingId);
+        uint[] storage _votings = votings; 
         uint counter = 0;
-        for(uint i = 1; i<=lastVotingId;i++){
-            if(votings[i].activated && votings[i].ended==false && votings[i].start/1000 <= block.timestamp && votings[i].end/1000 > block.timestamp){
+        for(uint i = 1; i<=_lastVotingId;i++){
+            if(_votings[i].activated && _votings[i].ended==false && _votings[i].start/1000 <= block.timestamp && _votings[i].end/1000 > block.timestamp){
                 activeVotings[counter] = i;
                 counter+=1;
             }
@@ -58,12 +60,14 @@ contract Daobuilder is DaobuilderDataStorage{
                  VoterCanVote(msg.sender)
                  CanVoteBehalfOf(_votingId ,msg.sender , _onbehalfOf)
                  IsOptionValid(_votingId , _selectedOption){
-        lastVoteId+=1;
-        votes[lastVoteId] = Vote(_votingId,msg.sender,_onbehalfOf,options[_selectedOption].option,block. timestamp,voters[_onbehalfOf].votingPower);
+        uint _lastVoteId = lastVoteId;
+        // lastVoteId+=1;
+        votes[_lastVoteId] = Vote(_votingId,msg.sender,_onbehalfOf,options[_selectedOption].option,block. timestamp,voters[_onbehalfOf].votingPower);
         uint[] storage userVotes = votersVotes[_onbehalfOf];
-        userVotes.push(lastVoteId);
+        userVotes.push(_lastVoteId);
         uint[] storage votingVotes = votingsVotes[_votingId];
-        votingVotes.push(lastVoteId);
+        votingVotes.push(_lastVoteId);
+        lastVoteId =_lastVoteId+1;
         emit VoteRegistered(_votingId , _selectedOption , _onbehalfOf);
     } 
 

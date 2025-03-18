@@ -287,7 +287,7 @@ var accountcreated = false;
          },
          getAllVotings:async function(){
              await App.contract.methods.lastVotingId().call().then(async function(result){
-                 for(i=1;i<=result;i++){
+                 for(i=1;i<result;i++){
                      await App.getMyVotingData(i);
                  }
              });
@@ -339,7 +339,7 @@ var accountcreated = false;
         getAllVoters: async function(){
             $(document).find('#voters .holder').html('');
             await App.contract.methods.lastVoterId().call().then(async function(data){
-                for(i=1;i<=data;i++){
+                for(i=1;i<data;i++){
                     await App.getVoter(i);
                 }
             });
