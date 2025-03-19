@@ -127,7 +127,7 @@ contract DaobuilderDataStorage is Ownable{
         _;
     }
     modifier isVotingActive(uint _votingId){
-        Voting storage voting = votings[_votingId];
+        Voting memory voting = votings[_votingId];
          require(voting.activated ,"Voting is Not Active");
          require(!voting.ended ,"Voting is Ended");
          require(voting.end >voting.start ,"Voting is Ended");
@@ -141,7 +141,7 @@ contract DaobuilderDataStorage is Ownable{
     }
     modifier NoVoteRegesteredYet(uint _votingId , address _voteraddress){
         //No vote registered for me
-        uint[] storage Myvotes = votersVotes[_voteraddress];
+        uint[] memory Myvotes = votersVotes[_voteraddress];
         for(uint i=0;i<Myvotes.length;i++){
             if(votes[Myvotes[i]].votingId==_votingId){
                 require(votes[Myvotes[i]].voingInsteadOf!=_voteraddress , "You have already a registered vote for this voting");
@@ -160,7 +160,7 @@ contract DaobuilderDataStorage is Ownable{
 
 
     modifier IsOptionValid(uint _votingId ,uint _votingOptionId){
-        Option storage opt =options[_votingOptionId]; 
+        Option memory opt =options[_votingOptionId]; 
         require(opt.enabled ,"Selected Option is not in valid defined options ");
         require(opt.votingId==_votingId ,"Selected Option is not in valid defined options ");
         _;
