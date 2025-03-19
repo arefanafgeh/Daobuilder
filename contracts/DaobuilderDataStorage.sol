@@ -142,9 +142,10 @@ contract DaobuilderDataStorage is Ownable{
     modifier NoVoteRegesteredYet(uint _votingId , address _voteraddress){
         //No vote registered for me
         uint[] memory Myvotes = votersVotes[_voteraddress];
+        uint[] storage _votes = votes;
         for(uint i=0;i<Myvotes.length;i++){
-            if(votes[Myvotes[i]].votingId==_votingId){
-                require(votes[Myvotes[i]].voingInsteadOf!=_voteraddress , "You have already a registered vote for this voting");
+            if(_votes[Myvotes[i]].votingId==_votingId){
+                require(_votes[Myvotes[i]].voingInsteadOf!=_voteraddress , "You have already a registered vote for this voting");
                 // require(votes[Myvotes[i]].votingId!=_votingId , "You have already a registered vote for this voting");
             }
         }
@@ -177,16 +178,20 @@ contract DaobuilderDataStorage is Ownable{
      */
     function addVotingAdmin(address _newadmin) external OnlyOwner {
         uint _locallastVotingAdminId = lastVotingAdminId;
-        if(!votingAdmins[votingAdminsShort[_newadmin]].added ){
+        VotingAdmin storage votingAdmin = votingAdmins[votingAdminsShort[_newadmin]];
+
+        if(!votingAdmin.added ){
             votingAdminsShort[_newadmin] = _locallastVotingAdminId;
             votingAdmins[_locallastVotingAdminId] = VotingAdmin(_newadmin , true,true);
             _locallastVotingAdminId+=1;
         }else{
-            votingAdmins[votingAdminsShort[_newadmin]].enabled = true;
+            votingAdmin.enabled = true;
         }
         lastVotingAdminId = _locallastVotingAdminId;
         emit NewAdminAdded(_newadmin);
     }
+    
+  
     function removeVotingAdmin(address _address) external OnlyOwner isAdmin(_address) {
         votingAdmins[votingAdminsShort[_address]].enabled = false;
         emit AdminRemoved(_address);
@@ -194,6 +199,9 @@ contract DaobuilderDataStorage is Ownable{
     function isUserAdmin(address _address) public view returns (bool){
         return votingAdmins[votingAdminsShort[_address]].enabled;
     }
+    // ----------------------------------------------HERE----------------------------------------------------
+    // ----------------------------------------------HERE----------------------------------------------------
+    // ----------------------------------------------HERE----------------------------------------------------
 
     /**
     Manage Voters
