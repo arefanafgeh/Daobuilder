@@ -199,16 +199,14 @@ contract DaobuilderDataStorage is Ownable{
     function isUserAdmin(address _address) public view returns (bool){
         return votingAdmins[votingAdminsShort[_address]].enabled;
     }
-    // ----------------------------------------------HERE----------------------------------------------------
-    // ----------------------------------------------HERE----------------------------------------------------
-    // ----------------------------------------------HERE----------------------------------------------------
 
     /**
     Manage Voters
      */
     function addVoter(address _voter) external OnlyOwner VoterDoesNotExists(_voter){
-        voters[_voter].votingPower=1;
-        voters[_voter].added=true;
+        Voter storage _voterinfo = voters[_voter];
+        _voterinfo.votingPower=1;
+        _voterinfo.added=true;
         votersAddresses[lastVoterId] = _voter;
         lastVoterId+=1;
         emit VoterAdded(_voter);
@@ -236,6 +234,9 @@ contract DaobuilderDataStorage is Ownable{
 
     
 
+    // ----------------------------------------------HERE----------------------------------------------------
+    // ----------------------------------------------HERE----------------------------------------------------
+    // ----------------------------------------------HERE----------------------------------------------------
 
 
     /**
