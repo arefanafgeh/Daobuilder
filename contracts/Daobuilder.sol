@@ -6,9 +6,9 @@ contract Daobuilder is DaobuilderDataStorage{
 
 
     function getActiveVotings() public view returns (uint[] memory){
-        uint _lastVotingId = lastVotingId;
-        uint[] memory activeVotings = new uint[](_lastVotingId);
-        uint[] storage _votings = votings; 
+        uint16 _lastVotingId = lastVotingId;
+        uint[] memory activeVotings = new uint16[](_lastVotingId);
+        uint16[] storage _votings = votings; 
         uint counter = 0;
         for(uint i = 1; i<=_lastVotingId;i++){
             if(_votings[i].activated && _votings[i].ended==false && _votings[i].start/1000 <= block.timestamp && _votings[i].end/1000 > block.timestamp){
@@ -20,7 +20,7 @@ contract Daobuilder is DaobuilderDataStorage{
     }
 
     function getMyVotings() public view isAdmin(msg.sender) returns (uint[] memory){
-        uint[] memory MyVotingList = myVotings[msg.sender];
+        uint16[] memory MyVotingList = myVotings[msg.sender];
         return myVotings[msg.sender];
     }
     

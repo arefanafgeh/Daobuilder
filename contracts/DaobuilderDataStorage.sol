@@ -13,9 +13,9 @@ contract DaobuilderDataStorage is Ownable{
         bool enabled ;
         bool added;
     }
-    mapping(uint=>VotingAdmin) public votingAdmins;
-    mapping(address=>uint) public votingAdminsShort;
-    uint public lastVotingAdminId = 1;
+    mapping(uint16=>VotingAdmin) public votingAdmins;
+    mapping(address=>uint16) public votingAdminsShort;
+    uint16 public lastVotingAdminId = 1;
  
 
     struct Voter{
@@ -23,50 +23,69 @@ contract DaobuilderDataStorage is Ownable{
         uint8 votingPower;
         bool added;
     }
-    uint public lastVoterId = 1;
+    uint16 public lastVoterId = 1;
     mapping(address=>Voter) public voters;
-    mapping(uint=>address) public votersAddresses;
+    mapping(uint16=>address) public votersAddresses;
 
     struct Voting{
         address creator;
-        uint start;
-        uint end;
+        uint32 start;
+        uint32 end;
         bool ended;
         bool activated;
         string title;
         string descriptions;
-        uint createdAt;
+        uint32 createdAt;
     }
-    mapping(uint=>Voting) public votings;
-    uint public lastVotingId = 1;
-    mapping(address=>uint[]) public myVotings;
+    mapping(uint16=>Voting) public votings;
+    uint16 public lastVotingId = 1;
+    mapping(address=>uint16[]) public myVotings;
+
     struct Option{
         string option;
         bool enabled;
-        uint votingId;
+        uint16 votingId;
     }
-    mapping(uint=>Option) public options;
-    uint public lastOptionId=1;
-    mapping(uint=>uint[]) public votingOptions;
+    mapping(uint64=>Option) public options;
+    uint64 public lastOptionId=1;
+    mapping(uint16=>uint64[]) public votingOptions;
 
     struct Vote{
-        uint votingId;
+        uint16 votingId;
         address voter;
         address voingInsteadOf;
         string option;
-        uint timeofVote;
-        uint power;
+        uint32 timeofVote;
+        uint8 power;
     }
-    mapping(uint=>Vote) public votes;
-    uint  public lastVoteId = 1;
-    mapping(address=>uint[]) public votersVotes;
-    mapping(uint=>uint[]) public votingsVotes;
+    mapping(uint64=>Vote) public votes;
+    uint64  public lastVoteId = 1;
+    mapping(address=>uint64[]) public votersVotes;
+    mapping(uint16=>uint64[]) public votingsVotes;
     struct Delegations{
         mapping(address=>address) delegaterToDelegatee;
     }
-    mapping(uint=>Delegations)  votingsDelegations;
+    mapping(uint16=>Delegations)  votingsDelegations;
 
 
+
+    /**
+    From Now on , fix every singe funciton , modifier and event data based on the correct data structure
+    From Now on , fix every singe funciton , modifier and event data based on the correct data structure
+    From Now on , fix every singe funciton , modifier and event data based on the correct data structure
+    From Now on , fix every singe funciton , modifier and event data based on the correct data structure
+    From Now on , fix every singe funciton , modifier and event data based on the correct data structure
+    From Now on , fix every singe funciton , modifier and event data based on the correct data structure
+    From Now on , fix every singe funciton , modifier and event data based on the correct data structure
+    From Now on , fix every singe funciton , modifier and event data based on the correct data structure
+    From Now on , fix every singe funciton , modifier and event data based on the correct data structure
+    From Now on , fix every singe funciton , modifier and event data based on the correct data structure
+    From Now on , fix every singe funciton , modifier and event data based on the correct data structure
+    From Now on , fix every singe funciton , modifier and event data based on the correct data structure
+    From Now on , fix every singe funciton , modifier and event data based on the correct data structure
+    From Now on , fix every singe funciton , modifier and event data based on the correct data structure
+    From Now on , fix every singe funciton , modifier and event data based on the correct data structure
+    */
 
     /**
     *
@@ -122,7 +141,7 @@ contract DaobuilderDataStorage is Ownable{
     }
     modifier isAdminOf(address _admin , uint _votingId){
         if(!isOwner()){
-            require(votings[_votingId].creator == _admin ,"You have no access to manage this voting");
+            require(votings[uint16(_votingId)].creator == _admin ,"You have no access to manage this voting");
         }
         _;
     }
@@ -131,12 +150,12 @@ contract DaobuilderDataStorage is Ownable{
          require(voting.activated ,"Voting is Not Active");
          require(!voting.ended ,"Voting is Ended");
          require(voting.end >voting.start ,"Voting is Ended");
-         require(voting.end/1000 > block.timestamp ,"Voting is Ended");
-         require(block.timestamp > voting.start/1000  ,"Wierdly voting start is NOT less than now");
+         require(voting.end/1000 > uint32(block.timestamp) ,"Voting is Ended");
+         require(uint32(block.timestamp) > voting.start/1000  ,"Wierdly voting start is NOT less than now");
          _;
     }
     modifier VotingNotPublishedYet(uint _votingId){
-         require(!votings[_votingId].activated ,"Voting is Not Active");
+         require(!votings[uint16(_votingId)].activated ,"Voting is Not Active");
          _;
     }
     modifier NoVoteRegesteredYet(uint _votingId , address _voteraddress){
@@ -161,9 +180,9 @@ contract DaobuilderDataStorage is Ownable{
 
 
     modifier IsOptionValid(uint _votingId ,uint _votingOptionId){
-        Option memory opt =options[_votingOptionId]; 
+        Option memory opt =options[uint64(_votingOptionId)]; 
         require(opt.enabled ,"Selected Option is not in valid defined options ");
-        require(opt.votingId==_votingId ,"Selected Option is not in valid defined options ");
+        require(opt.votingId==uint16(_votingId) ,"Selected Option is not in valid defined options ");
         _;
     }
     /**
@@ -238,18 +257,18 @@ contract DaobuilderDataStorage is Ownable{
     Manage Votings
      */
     function addVoting(uint _start , uint _end , string memory _title , string memory _description) external isAdmin(msg.sender) returns (uint) {
-        uint _lastVotingId = lastVotingId;
+        uint16 _lastVotingId = lastVotingId;
         Voting storage newvoting =votings[_lastVotingId];
         newvoting.creator = msg.sender;
-        newvoting.start=_start;
-        newvoting.end=_end;
+        newvoting.start=uint32(_start);
+        newvoting.end=uint32(_end);
         // newvoting.ended;
         // newvoting.activated;
         newvoting.title=_title;
         newvoting.descriptions=_description;
-        newvoting.createdAt=block.timestamp;
+        newvoting.createdAt=uint32(block.timestamp);
         // votings[lastVotingId] = Voting(msg.sender, _start, _end, false , false,_title , _description , block.timestamp) ;
-        uint[] storage myvotings =myVotings[msg.sender];
+        uint16[] storage myvotings =myVotings[msg.sender];
         _lastVotingId+=1;
         lastVotingId = _lastVotingId;
         myvotings.push(_lastVotingId);
@@ -258,45 +277,45 @@ contract DaobuilderDataStorage is Ownable{
 
     }
     function changeVotingStartDate(uint _votingId , uint _startdate) external isAdmin(msg.sender) isAdminOf(msg.sender , _votingId) VotingNotPublishedYet(_votingId) {
-        votings[_votingId].start = _startdate;
+        votings[uint16(_votingId)].start = uint32(_startdate);
         emit VotingDataChanged(_votingId , "Voting start date changed");
     }
     function changeVotingEndDate(uint _votingId , uint _enddate) external isAdmin(msg.sender) isAdminOf(msg.sender , _votingId) VotingNotPublishedYet(_votingId) {
-        votings[_votingId].end = _enddate;
+        votings[uint16(_votingId)].end = uint32(_enddate);
         emit VotingDataChanged(_votingId , "Voting end date changed");
     }
     function changeVotingTitle(uint _votingId , string memory _title) external isAdmin(msg.sender) isAdminOf(msg.sender , _votingId) VotingNotPublishedYet(_votingId) {
-        votings[_votingId].title = _title;
+        votings[uint16(_votingId)].title = _title;
         emit VotingDataChanged(_votingId , "Voting title changed");
     }    
     function changeVotingDescription(uint _votingId , string memory _description) external isAdmin(msg.sender) isAdminOf(msg.sender , _votingId) VotingNotPublishedYet(_votingId) {
-        votings[_votingId].descriptions = _description;
+        votings[uint16(_votingId)].descriptions = _description;
         emit VotingDataChanged(_votingId , "Voting description changed");
     }
     function setVotingEnded(uint _votingId) external isAdmin(msg.sender) isAdminOf(msg.sender , _votingId) isVotingActive(_votingId) {
-        votings[_votingId].ended = true;
-        emit VotingDataChanged(_votingId , "Voting is set ended now");
+        votings[uint16(_votingId)].ended = true;
+        emit VotingDataChanged(uint16(_votingId) , "Voting is set ended now");
     }
 
     function setVotingActive(uint _votingId) external OnlyOwner() {
-        votings[_votingId].activated = true;
-        emit VotingDataChanged(_votingId , "Voting is set Active now");
+        votings[uint16(_votingId)].activated = true;
+        emit VotingDataChanged(uint16(_votingId) , "Voting is set Active now");
     }
 
     /**
     Manage Voting Options
      */
     function addVotingOption(uint _votingId , string memory option) external isAdmin(msg.sender) isAdminOf(msg.sender , _votingId) VotingNotPublishedYet(_votingId){
-        uint _lastOptionId = lastOptionId;
-        uint[] storage _votingOptions = votingOptions[_votingId];
-        options[_lastOptionId] = Option(option,true , _votingId);
+        uint64 _lastOptionId = uint64(lastOptionId);
+        uint64[] storage _votingOptions = votingOptions[uint16(_votingId)];
+        options[_lastOptionId] = Option(option,true , uint16(_votingId));
         _votingOptions.push(_lastOptionId);
         lastOptionId+=1;
-        emit VotingOptionChanged(_votingId , option , "Voting Option Added");
+        emit VotingOptionChanged(uint16(_votingId) , option , "Voting Option Added");
     }
     function removeVotingOption(uint _votingId , uint option) external isAdmin(msg.sender) isAdminOf(msg.sender , _votingId) VotingNotPublishedYet(_votingId){
-        options[option].enabled = false;
-        emit VotingOptionChanged(_votingId , options[option].option , "Voting option removed");
+        options[uint64(option)].enabled = false;
+        emit VotingOptionChanged(uint16(_votingId) , options[uint64(option)].option , "Voting option removed");
     }
 
 }
