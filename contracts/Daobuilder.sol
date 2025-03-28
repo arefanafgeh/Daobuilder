@@ -10,7 +10,7 @@ contract Daobuilder is DaobuilderDataStorage{
         uint16[] memory activeVotings = new uint16[](_lastVotingId);
         mapping(uint16=>Voting) storage _votings = votings; 
         uint16 counter = 0;
-        for(uint i = 1; i<=_lastVotingId;i++){
+        for(uint16 i = 1; i<=_lastVotingId;i++){
             if(_votings[i].activated && _votings[i].ended==false && _votings[i].start/1000 <= block.timestamp && _votings[i].end/1000 > block.timestamp){
                 activeVotings[counter] = i;
                 counter+=1;
@@ -21,7 +21,7 @@ contract Daobuilder is DaobuilderDataStorage{
 
     function getMyVotings() public view isAdmin(msg.sender) returns (uint16[] memory){
         uint16[] memory MyVotingList = myVotings[msg.sender];
-        return myVotings[msg.sender];
+        return MyVotingList;
     }
     
     function getVotingOptions(uint16 _votingId) public view returns (uint64[] memory){
@@ -64,7 +64,7 @@ contract Daobuilder is DaobuilderDataStorage{
         uint64 _lastVoteId = lastVoteId;
         // lastVoteId+=1;
        
-        votes[_lastVoteId] = Vote(block.timestamp,_votingId,voters[_onbehalfOf].votingPower,msg.sender,_onbehalfOf,options[_selectedOption].option);
+        votes[_lastVoteId] = Vote(uint32(block.timestamp),_votingId,voters[_onbehalfOf].votingPower,msg.sender,_onbehalfOf,options[_selectedOption].option);
         uint64[] storage userVotes = votersVotes[_onbehalfOf];
         userVotes.push(_lastVoteId);
         uint64[] storage votingVotes = votingsVotes[_votingId];
