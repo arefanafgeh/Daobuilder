@@ -3,13 +3,13 @@ pragma solidity 0.8.19;
 import  "./DaobuilderDataStorage.sol";
 contract Daobuilder is DaobuilderDataStorage{
 
+  
 
-
-    function getActiveVotings() public view returns (uint[] memory){
+    function getActiveVotings() public view returns (uint16[] memory){
         uint16 _lastVotingId = lastVotingId;
-        uint[] memory activeVotings = new uint16[](_lastVotingId);
-        uint16[] storage _votings = votings; 
-        uint counter = 0;
+        uint16[] memory activeVotings = new uint16[](_lastVotingId);
+        mapping(uint16=>Voting) storage _votings = votings; 
+        uint16 counter = 0;
         for(uint i = 1; i<=_lastVotingId;i++){
             if(_votings[i].activated && _votings[i].ended==false && _votings[i].start/1000 <= block.timestamp && _votings[i].end/1000 > block.timestamp){
                 activeVotings[counter] = i;
@@ -19,17 +19,17 @@ contract Daobuilder is DaobuilderDataStorage{
         return activeVotings;
     }
 
-    function getMyVotings() public view isAdmin(msg.sender) returns (uint[] memory){
+    function getMyVotings() public view isAdmin(msg.sender) returns (uint16[] memory){
         uint16[] memory MyVotingList = myVotings[msg.sender];
         return myVotings[msg.sender];
     }
     
-    function getVotingOptions(uint _votingId) public view returns (uint[] memory){
-        uint[] memory MyVotingList = votingOptions[_votingId];
+    function getVotingOptions(uint16 _votingId) public view returns (uint64[] memory){
+        uint64[] memory MyVotingList = votingOptions[_votingId];
         return MyVotingList;
     }
     
-    function delegateMyVote(uint _votingId ,address _to) 
+    function delegateMyVote(uint16 _votingId ,address _to) 
         external  isVotingActive(_votingId) 
                   VoterCanVote(msg.sender) 
                   NoVoteRegesteredYet(_votingId , msg.sender){
@@ -39,7 +39,7 @@ contract Daobuilder is DaobuilderDataStorage{
         emit VotingRightDelegated(_votingId , msg.sender , _to);
     }
 
-    function revokeDelegation(uint _votingId ,address _to)
+    function revokeDelegation(uint16 _votingId ,address _to)
         external  isVotingActive(_votingId) 
                   VoterCanVote(msg.sender)
                   NoVoteRegesteredYet(_votingId , msg.sender){
@@ -48,37 +48,38 @@ contract Daobuilder is DaobuilderDataStorage{
         emit VotingRightUnDelegated(_votingId , msg.sender , _to);
     }
 
-    function getMyDelegationOnVoting(uint _votingId) public view
+    function getMyDelegationOnVoting(uint16 _votingId) public view
                     isVotingActive(_votingId) returns (address addrss){
             Delegations storage thisVotingDelegations = votingsDelegations[_votingId];
             return thisVotingDelegations.delegaterToDelegatee[msg.sender];
     }
 
-    function vote(uint _votingId , uint _selectedOption , address _onbehalfOf) 
+
+    function vote(uint16 _votingId , uint64 _selectedOption , address _onbehalfOf) 
         external isVotingActive(_votingId)
                  NoVoteRegesteredYet(_votingId,_onbehalfOf)
                  VoterCanVote(msg.sender)
                  CanVoteBehalfOf(_votingId ,msg.sender , _onbehalfOf)
                  IsOptionValid(_votingId , _selectedOption){
-        uint _lastVoteId = lastVoteId;
+        uint64 _lastVoteId = lastVoteId;
         // lastVoteId+=1;
        
         votes[_lastVoteId] = Vote(_votingId,msg.sender,_onbehalfOf,options[_selectedOption].option,block. timestamp,voters[_onbehalfOf].votingPower);
-        uint[] storage userVotes = votersVotes[_onbehalfOf];
+        uint64[] storage userVotes = votersVotes[_onbehalfOf];
         userVotes.push(_lastVoteId);
-        uint[] storage votingVotes = votingsVotes[_votingId];
+        uint64[] storage votingVotes = votingsVotes[_votingId];
         votingVotes.push(_lastVoteId);
         lastVoteId =_lastVoteId+1;
         emit VoteRegistered(_votingId , _selectedOption , _onbehalfOf);
     } 
 
 
-    function getVotingsVotes(uint _votingId) public view returns (uint[] memory){
-        uint[] memory Votingvotes = votingsVotes[_votingId];
+    function getVotingsVotes(uint16 _votingId) public view returns (uint64[] memory){
+        uint64[] memory Votingvotes = votingsVotes[_votingId];
         return Votingvotes;
     }
-    function getVotersVotes() public view returns (uint[] memory){
-        uint[] memory MyVotes = votersVotes[msg.sender];
+    function getVotersVotes() public view returns (uint64[] memory){
+        uint64[] memory MyVotes = votersVotes[msg.sender];
         return MyVotes;
     }
 
