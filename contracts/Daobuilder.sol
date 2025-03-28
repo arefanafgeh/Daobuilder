@@ -64,7 +64,7 @@ contract Daobuilder is DaobuilderDataStorage{
         uint64 _lastVoteId = lastVoteId;
         // lastVoteId+=1;
        
-        votes[_lastVoteId] = Vote(_votingId,msg.sender,_onbehalfOf,options[_selectedOption].option,block. timestamp,voters[_onbehalfOf].votingPower);
+        votes[_lastVoteId] = Vote(block.timestamp,_votingId,voters[_onbehalfOf].votingPower,msg.sender,_onbehalfOf,options[_selectedOption].option);
         uint64[] storage userVotes = votersVotes[_onbehalfOf];
         userVotes.push(_lastVoteId);
         uint64[] storage votingVotes = votingsVotes[_votingId];

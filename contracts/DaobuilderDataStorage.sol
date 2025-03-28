@@ -20,43 +20,43 @@ contract DaobuilderDataStorage is Ownable{
 
     struct Voter{
         bool enabled;
-        uint8 votingPower;
         bool added;
+        uint8 votingPower;
     }
     uint16 public lastVoterId = 1;
     mapping(address=>Voter) public voters;
     mapping(uint16=>address) public votersAddresses;
 
     struct Voting{
-        address creator;
         uint32 start;
         uint32 end;
+        uint32 createdAt;
         bool ended;
         bool activated;
+        address creator;
         string title;
         string descriptions;
-        uint32 createdAt;
     }
     mapping(uint16=>Voting) public votings;
     uint16 public lastVotingId = 1;
     mapping(address=>uint16[]) public myVotings;
 
     struct Option{
-        string option;
-        bool enabled;
         uint16 votingId;
+        bool enabled;
+        string option;
     }
     mapping(uint64=>Option) public options;
     uint64 public lastOptionId=1;
     mapping(uint16=>uint64[]) public votingOptions;
 
     struct Vote{
+        uint32 timeofVote;
         uint16 votingId;
+        uint8 power;
         address voter;
         address voingInsteadOf;
         string option;
-        uint32 timeofVote;
-        uint8 power;
     }
     mapping(uint64=>Vote) public votes;
     uint64  public lastVoteId = 1;
@@ -294,7 +294,7 @@ contract DaobuilderDataStorage is Ownable{
     function addVotingOption(uint16 _votingId , string memory option) external isAdmin(msg.sender) isAdminOf(msg.sender , _votingId) VotingNotPublishedYet(_votingId){
         uint64 _lastOptionId = lastOptionId;
         uint64[] storage _votingOptions = votingOptions[_votingId];
-        options[_lastOptionId] = Option(option,true , _votingId);
+        options[_lastOptionId] = Option(_votingId,true , option);
         _votingOptions.push(_lastOptionId);
         lastOptionId+=1;
         emit VotingOptionChanged(_votingId , option , "Voting Option Added");
