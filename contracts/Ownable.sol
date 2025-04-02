@@ -8,7 +8,7 @@ contract Ownable {
         address indexed previousOwner,
         address indexed newOwner
     );
-    constructor() {
+    constructor() payable{
         _owner = msg.sender;
         emit OwnershipTransferred(address(0), _owner);
     }
