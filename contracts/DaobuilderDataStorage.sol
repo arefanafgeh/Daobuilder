@@ -179,7 +179,7 @@ contract DaobuilderDataStorage is Ownable{
     /**
     Manage Voting Admins
      */
-    function addVotingAdmin(address _newadmin) external OnlyOwner {
+    function addVotingAdmin(address _newadmin) external payable OnlyOwner {
         uint16 _locallastVotingAdminId = lastVotingAdminId;
         VotingAdmin storage votingAdmin = votingAdmins[votingAdminsShort[_newadmin]];
 
@@ -195,7 +195,7 @@ contract DaobuilderDataStorage is Ownable{
     }
     
   
-    function removeVotingAdmin(address _address) external OnlyOwner isAdmin(_address) {
+    function removeVotingAdmin(address _address) external payable OnlyOwner isAdmin(_address) {
         votingAdmins[votingAdminsShort[_address]].enabled = false;
         emit AdminRemoved(_address);
     }
@@ -209,7 +209,7 @@ contract DaobuilderDataStorage is Ownable{
     /**
     Manage Voters
      */
-    function addVoter(address _voter) external OnlyOwner VoterDoesNotExists(_voter){
+    function addVoter(address _voter) external payable OnlyOwner VoterDoesNotExists(_voter){
         Voter storage _voterinfo = voters[_voter];
         _voterinfo.votingPower=1;
         _voterinfo.added=true;
@@ -218,19 +218,19 @@ contract DaobuilderDataStorage is Ownable{
         emit VoterAdded(_voter);
     }
 
-    function enableVoter(address _voter) external OnlyOwner VoterExists(_voter){
+    function enableVoter(address _voter) external payable OnlyOwner VoterExists(_voter){
         voters[_voter].enabled=true;
         emit VoterEnabled(_voter);
     }
-    function disableVoter(address _voter) external OnlyOwner VoterExists(_voter){
+    function disableVoter(address _voter) external payable OnlyOwner VoterExists(_voter){
         voters[_voter].enabled=false;
         emit VoterDisabled(_voter);
     }
-    function increaseVoterPower(address _voter) external OnlyOwner VoterExists(_voter){
+    function increaseVoterPower(address _voter) external payable OnlyOwner VoterExists(_voter){
         voters[_voter].votingPower+=1;
         emit VoterPowerIncreased(_voter);
     }
-    function decreaseVoterPower(address _voter) external OnlyOwner VoterExists(_voter) VoterMinVotingPowerCheck(_voter){
+    function decreaseVoterPower(address _voter) external payable OnlyOwner VoterExists(_voter) VoterMinVotingPowerCheck(_voter){
         voters[_voter].votingPower-=1;
         emit VoterPowerDecreased(_voter);
     }
@@ -283,7 +283,7 @@ contract DaobuilderDataStorage is Ownable{
         emit VotingDataChanged(_votingId , "Voting is set ended now");
     }
 
-    function setVotingActive(uint16 _votingId) external OnlyOwner() {
+    function setVotingActive(uint16 _votingId) external payable OnlyOwner() {
         votings[_votingId].activated = true;
         emit VotingDataChanged(_votingId , "Voting is set Active now");
     }

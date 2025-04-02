@@ -22,7 +22,7 @@ contract Ownable {
         return msg.sender==_owner;
     }
 
-    function transferOwnership(address to) public OnlyOwner {
+    function transferOwnership(address to) public payable OnlyOwner {
         _transferOwnership(to);
     } 
     function _transferOwnership(address to) internal {
