@@ -96,49 +96,68 @@ contract DaobuilderDataStorage is Ownable{
     *   Events section
     * */
 
-
+    error VoterNotExists();
+    error VoterAlreadyExists();
+    error NotAnAdmin();
+    error NoAccessToManage();
+    error VotingNotActive();
+    error VotingEnded();
+    error VotingStartInFuture();
+    error VoteAlreadyRegistered();
+    error NoRightToVoteOnBehalfOf();
+    error VotingOptionInvalid();
 
     /**
     *   modifiers section
     * */
     modifier VoterExists(address _voter){
-        require(voters[_voter].added ,"Voter does not exists" );
+        if(!voters[_voter].added) revert VoterNotExists();
+        // require(voters[_voter].added ,"Voter does not exists" );
         _;
     }
     modifier VoterDoesNotExists(address _voter){
-        require(!voters[_voter].added ,"Voter Already exists" );
+        if(voters[_voter].added) revert VoterAlreadyExists();
+        // require(!voters[_voter].added ,"Voter Already exists" );
         _;
     }
     modifier VoterCanVote(address _voter){
-        require(voters[_voter].added ,"Voter does not exists" );
-        require(voters[_voter].enabled ,"Voter does not exists" );
+        if(!voters[_voter].added || !voters[_voter].enabled) revert VoterNotExists();
+        // require(voters[_voter].added ,"Voter does not exists" );
+        // require(voters[_voter].enabled ,"Voter does not exists" );
         _;
     }
     modifier VoterMinVotingPowerCheck(address _voter){
-        require(voters[_voter].votingPower>1 ,"Voter does not exists" );
+        if(voters[_voter].votingPower<1) revert VoterNotExists();
+        // require(voters[_voter].votingPower>1 ,"Voter does not exists" );
         _;
     }
     modifier isAdmin(address _admin){
-        require(votingAdmins[votingAdminsShort[_admin]].enabled , "Address is not and Admin");
+        if(!votingAdmins[votingAdminsShort[_admin]].enabled) revert NotAnAdmin();
+        // require(votingAdmins[votingAdminsShort[_admin]].enabled , "Address is not and Admin");
         _;
     }
     modifier isAdminOf(address _admin , uint16 _votingId){
-        if(!isOwner()){
-            require(votings[_votingId].creator == _admin ,"You have no access to manage this voting");
+        if(!isOwner() && votings[_votingId].creator != _admin){
+            revert NoAccessToManage();
+            // require(votings[_votingId].creator == _admin ,"You have no access to manage this voting");
         }
         _;
     }
     modifier isVotingActive(uint16 _votingId){
         Voting memory voting = votings[_votingId];
-         require(voting.activated ,"Voting is Not Active");
-         require(!voting.ended ,"Voting is Ended");
-         require(voting.end >voting.start ,"Voting is Ended");
-         require(voting.end/1000 > uint32(block.timestamp) ,"Voting is Ended");
-         require(uint32(block.timestamp) > voting.start/1000  ,"Wierdly voting start is NOT less than now");
+        if(!voting.activated) revert VotingNotActive();
+        //  require(voting.activated ,"Voting is Not Active");
+        if(voting.ended || voting.end <=voting.start || voting.end/1000 <= uint32(block.timestamp)) revert VotingEnded();
+        //  require(!voting.ended ,"Voting is Ended");
+        //  require(voting.end >voting.start ,"Voting is Ended");
+        //  require(voting.end/1000 > uint32(block.timestamp) ,"Voting is Ended");
+        if(uint32(block.timestamp) < voting.start/1000) revert VotingStartInFuture();
+        //  require(uint32(block.timestamp) > voting.start/1000  ,"Wierdly voting start is NOT less than now");
          _;
     }
     modifier VotingNotPublishedYet(uint16 _votingId){
-         require(!votings[_votingId].activated ,"Voting is Not Active");
+        if(votings[_votingId].activated) revert VotingNotActive();
+        //  require(!votings[_votingId].activated ,"Voting is Not Active");
          _;
     }
     modifier NoVoteRegesteredYet(uint16 _votingId , address _voteraddress){
@@ -148,8 +167,9 @@ contract DaobuilderDataStorage is Ownable{
         mapping(uint64=>Vote) storage _votes = votes;
         for(uint64 i=0;i<Myvotes.length;i++){
             if(_votes[Myvotes[i]].votingId==_votingId){
-                require(_votes[Myvotes[i]].voingInsteadOf!=_voteraddress , "You have already a registered vote for this voting");
-                // require(votes[Myvotes[i]].votingId!=_votingId , "You have already a registered vote for this voting");
+                if(_votes[Myvotes[i]].voingInsteadOf==_voteraddress) revert VoteAlreadyRegistered();
+                // require(_votes[Myvotes[i]].voingInsteadOf!=_voteraddress , "You have already a registered vote for this voting");
+                // // require(votes[Myvotes[i]].votingId!=_votingId , "You have already a registered vote for this voting");
             }
         }
         _;
@@ -157,7 +177,8 @@ contract DaobuilderDataStorage is Ownable{
 
     modifier CanVoteBehalfOf(uint16 _votingId ,address _voter , address _onbehalfOf){
         if(_voter!=_onbehalfOf){
-            require(votingsDelegations[_votingId].delegaterToDelegatee[_onbehalfOf]==_voter,"You have no right to vote for someone's else");
+            if(votingsDelegations[_votingId].delegaterToDelegatee[_onbehalfOf]!=_voter) revert NoRightToVoteOnBehalfOf();
+            // require(votingsDelegations[_votingId].delegaterToDelegatee[_onbehalfOf]==_voter,"You have no right to vote for someone's else");
         }
         _;
     }
@@ -165,8 +186,9 @@ contract DaobuilderDataStorage is Ownable{
 
     modifier IsOptionValid(uint16 _votingId ,uint64 _votingOptionId){
         Option memory opt =options[_votingOptionId]; 
-        require(opt.enabled ,"Selected Option is not in valid defined options ");
-        require(opt.votingId==_votingId ,"Selected Option is not in valid defined options ");
+        if(!opt.enabled || opt.votingId!=_votingId) revert VotingOptionInvalid();
+        // require(opt.enabled ,"Selected Option is not in valid defined options ");
+        // require(opt.votingId==_votingId ,"Selected Option is not in valid defined options ");
         _;
     }
     /**
