@@ -137,8 +137,10 @@ contract DaobuilderDataStorage is Ownable{
         _;
     }
     modifier isAdminOf(address _admin , uint16 _votingId){
-        if(!isOwner() && votings[_votingId].creator != _admin){
-            revert NoAccessToManage();
+        if(!isOwner()){
+            if(votings[_votingId].creator != _admin){
+                revert NoAccessToManage();
+            }
             // require(votings[_votingId].creator == _admin ,"You have no access to manage this voting");
         }
         _;
