@@ -211,12 +211,12 @@ contract DaobuilderDataStorage is Ownable{
         uint16 _locallastVotingAdminId = lastVotingAdminId;
         VotingAdmin storage votingAdmin = votingAdmins[votingAdminsShort[_newadmin]];
 
-        if(!votingAdmin.added ){
+        if(votingAdmin.added ){
+            votingAdmin.enabled = true;
+        }else{
             votingAdminsShort[_newadmin] = _locallastVotingAdminId;
             votingAdmins[_locallastVotingAdminId] = VotingAdmin(_newadmin , true,true);
             _locallastVotingAdminId+=1;
-        }else{
-            votingAdmin.enabled = true;
         }
         lastVotingAdminId = _locallastVotingAdminId;
         emit NewAdminAdded(_newadmin);
