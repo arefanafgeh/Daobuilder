@@ -121,7 +121,8 @@ contract DaobuilderDataStorage is Ownable{
         _;
     }
     modifier VoterCanVote(address _voter){
-        if(!voters[_voter].added || !voters[_voter].enabled) revert VoterNotExists();
+        if(!voters[_voter].added) revert VoterNotExists();
+        if(!voters[_voter].enabled) revert VoterNotExists();
         // require(voters[_voter].added ,"Voter does not exists" );
         // require(voters[_voter].enabled ,"Voter does not exists" );
         _;
@@ -149,7 +150,9 @@ contract DaobuilderDataStorage is Ownable{
         Voting memory voting = votings[_votingId];
         if(!voting.activated) revert VotingNotActive();
         //  require(voting.activated ,"Voting is Not Active");
-        if(voting.ended || voting.end <=voting.start || voting.end/1000 <= uint32(block.timestamp)) revert VotingEnded();
+        if(voting.ended ) revert VotingEnded();
+        if(voting.end <=voting.start ) revert VotingEnded();
+        if(voting.end/1000 <= uint32(block.timestamp)) revert VotingEnded();
         //  require(!voting.ended ,"Voting is Ended");
         //  require(voting.end >voting.start ,"Voting is Ended");
         //  require(voting.end/1000 > uint32(block.timestamp) ,"Voting is Ended");
@@ -188,7 +191,8 @@ contract DaobuilderDataStorage is Ownable{
 
     modifier IsOptionValid(uint16 _votingId ,uint64 _votingOptionId){
         Option memory opt =options[_votingOptionId]; 
-        if(!opt.enabled || opt.votingId!=_votingId) revert VotingOptionInvalid();
+        if(!opt.enabled) revert VotingOptionInvalid();
+        if(opt.votingId!=_votingId) revert VotingOptionInvalid();
         // require(opt.enabled ,"Selected Option is not in valid defined options ");
         // require(opt.votingId==_votingId ,"Selected Option is not in valid defined options ");
         _;
