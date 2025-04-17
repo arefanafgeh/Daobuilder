@@ -28,23 +28,23 @@ contract DaobuilderDataStorage is Ownable{
     mapping(uint16=>address) public votersAddresses;
 
     struct Voting{
-        uint32 start;
-        uint32 end;
-        uint32 createdAt;
         bool ended;
         bool activated;
         address creator;
         string title;
         string descriptions;
+        uint32 start;
+        uint32 end;
+        uint32 createdAt;
     }
     mapping(uint16=>Voting) public votings;
     uint16 public lastVotingId = 1;
     mapping(address=>uint16[]) public myVotings;
 
     struct Option{
-        uint16 votingId;
         bool enabled;
         string option;
+        uint16 votingId;
     }
     mapping(uint64=>Option) public options;
     uint64 public lastOptionId=1;
@@ -322,7 +322,7 @@ contract DaobuilderDataStorage is Ownable{
     function addVotingOption(uint16 _votingId , string memory option) external isAdmin(msg.sender) isAdminOf(msg.sender , _votingId) VotingNotPublishedYet(_votingId){
         uint64 _lastOptionId = lastOptionId;
         uint64[] storage _votingOptions = votingOptions[_votingId];
-        options[_lastOptionId] = Option(_votingId,true , option);
+        options[_lastOptionId] = Option(true , option,_votingId);
         _votingOptions.push(_lastOptionId);
         lastOptionId+=1;
         emit VotingOptionChanged(_votingId , option , "Voting Option Added");
