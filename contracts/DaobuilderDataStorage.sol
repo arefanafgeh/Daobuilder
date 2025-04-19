@@ -13,8 +13,8 @@ contract DaobuilderDataStorage is Ownable{
         bool enabled ;
         bool added;
     }
-    mapping(uint16=>VotingAdmin) public votingAdmins;
-    mapping(address=>uint16) public votingAdminsShort;
+    mapping(uint16=>VotingAdmin) internal votingAdmins;
+    mapping(address=>uint16) internal votingAdminsShort;
     uint16 public lastVotingAdminId = 1;
  
 
@@ -39,7 +39,7 @@ contract DaobuilderDataStorage is Ownable{
     }
     mapping(uint16=>Voting) public votings;
     uint16 public lastVotingId = 1;
-    mapping(address=>uint16[]) public myVotings;
+    mapping(address=>uint16[]) internal myVotings;
 
     struct Option{
         bool enabled;
@@ -48,24 +48,24 @@ contract DaobuilderDataStorage is Ownable{
     }
     mapping(uint64=>Option) public options;
     uint64 public lastOptionId=1;
-    mapping(uint16=>uint64[]) public votingOptions;
+    mapping(uint16=>uint64[]) internal votingOptions;
 
     struct Vote{
-        uint32 timeofVote;
-        uint16 votingId;
-        uint8 power;
         address voter;
         address voingInsteadOf;
         string option;
+        uint32 timeofVote;
+        uint16 votingId;
+        uint8 power;
     }
     mapping(uint64=>Vote) public votes;
     uint64  public lastVoteId = 1;
-    mapping(address=>uint64[]) public votersVotes;
-    mapping(uint16=>uint64[]) public votingsVotes;
+    mapping(address=>uint64[]) internal votersVotes;
+    mapping(uint16=>uint64[]) internal votingsVotes;
     struct Delegations{
         mapping(address=>address) delegaterToDelegatee;
     }
-    mapping(uint16=>Delegations)  votingsDelegations;
+    mapping(uint16=>Delegations) internal  votingsDelegations;
 
 
 
